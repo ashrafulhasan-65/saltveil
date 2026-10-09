@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#06202b">
+<meta name="description" content="SaltVeil is an experimental research prototype for Satkhira, Bangladesh, showing cited historical river-water EC observations and weather context. It does not measure or validate current salinity or certify drinking-water safety.">
+<title>SaltVeil — Historical EC + weather context</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+<style>
+:root{color-scheme:dark;--bg:#06202b;--panel:#0d3342;--panel2:#103b4a;--text:#eef5f2;--muted:#9bb8bf;--line:#1b4a5a;--low:#4fd1c5;--mod:#e9b44c;--high:#e4572e;--water:#12586d;--focus:#9ce8e0}
+@media(prefers-color-scheme:light){:root{color-scheme:light;--bg:#eef5f2;--panel:#dcebe7;--panel2:#d0e4df;--text:#06202b;--muted:#4a6a72;--line:#b9d3cc;--low:#0f9d92;--mod:#9b6c12;--high:#c43d17;--water:#a8d6dc;--focus:#087c74}}
+*{box-sizing:border-box;margin:0}html{min-height:100%;background:var(--bg);scroll-behavior:smooth}body{min-height:100%;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-top:env(safe-area-inset-top,0px)}button,input,select{font:inherit}button{touch-action:manipulation}.app{max-width:560px;margin:0 auto;padding:20px 18px calc(96px + env(safe-area-inset-bottom,0px))}header h1{font:700 30px/1.1 Georgia,"Times New Roman",serif;letter-spacing:.2px}header p{color:var(--muted);font-size:14px;margin-top:5px}.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:10px;font-weight:800;color:var(--muted)}.status{display:flex;align-items:flex-start;gap:8px;margin-top:12px;padding:9px 11px;border:1px solid var(--line);border-radius:12px;color:var(--muted);font-size:12px;overflow-wrap:anywhere}.status .dot{flex:0 0 9px;margin-top:5px}.status button{border:0;background:none;color:var(--low);text-decoration:underline;cursor:pointer;padding:0 0 0 4px}.dot{display:inline-block;width:10px;height:10px;border-radius:50%;vertical-align:middle}.hero{display:flex;gap:18px;align-items:center;margin:24px 0 8px}.tank{flex:0 0 126px;height:180px;border-radius:22px 22px 42px 42px;background:var(--panel);border:1px solid var(--line);overflow:hidden;position:relative}.tank svg{position:absolute;inset:0;width:100%;height:100%}.wave{animation:drift 7s linear infinite}@keyframes drift{to{transform:translateX(-80px)}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.wave{animation:none}}.read{min-width:0}.read h2{font:700 44px/1 Georgia,"Times New Roman",serif}.read h2 small{font:400 14px system-ui,sans-serif;color:var(--muted)}.lvl{font-weight:800;font-size:19px;margin-top:7px}.read p{color:var(--muted);font-size:13px;margin-top:6px}.pill{display:inline-block;margin-top:10px;padding:4px 9px;border:1px solid var(--line);border-radius:99px;font-size:11px;color:var(--muted)}h2.section-title{font:700 22px/1.25 Georgia,serif;margin:20px 0 8px}h3{font:700 19px/1.25 Georgia,"Times New Roman",serif;margin:23px 0 7px}.sub{color:var(--muted);font-size:13px}.rows{margin-top:12px}.row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:12px 0;border-top:1px solid var(--line)}.row span:first-child{color:var(--muted)}.row b{text-align:right;max-width:60%;overflow-wrap:anywhere}.note{color:var(--muted);font-size:12px;margin-top:16px;padding:12px 13px;border:1px dashed var(--line);border-radius:12px}.note.warn{border:1px solid var(--mod);color:var(--text);background:color-mix(in srgb,var(--mod) 9%,transparent)}.note.danger{border:1px solid var(--high);color:var(--text);background:color-mix(in srgb,var(--high) 9%,transparent)}.notice-title{display:block;font-weight:800;margin-bottom:3px}.chart{margin-top:10px;overflow-x:auto;border:1px solid var(--line);padding:10px 6px;border-radius:13px;background:var(--panel)}.chart svg{display:block;min-width:330px}.key{display:flex;gap:14px;flex-wrap:wrap;color:var(--muted);font-size:12px;margin-top:8px}.key i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px}.adv{padding:14px 0;border-top:1px solid var(--line)}.adv b{display:block;margin-bottom:3px}.adv.now{border-left:3px solid var(--c);padding-left:12px}.section{padding-bottom:6px}.hide{display:none!important}nav{position:fixed;z-index:1000;left:0;right:0;bottom:0;background:var(--bg);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}nav .nav-inner{max-width:560px;margin:0 auto;display:flex}nav button{flex:1;min-width:0;background:none;border:0;color:var(--muted);font:600 12px system-ui,sans-serif;padding:15px 2px 13px;cursor:pointer}nav button[aria-selected="true"]{color:var(--text);box-shadow:inset 0 3px 0 var(--low)}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--focus);outline-offset:2px}input,select{width:100%;padding:12px;margin:6px 0 12px;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:10px;min-height:45px}label{display:block;color:var(--muted);font-size:13px}.btn{width:100%;min-height:46px;padding:12px 14px;border:0;border-radius:11px;background:var(--low);color:#06202b;font-weight:800;cursor:pointer}.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--text);margin-top:9px}.btn:disabled{opacity:.5;cursor:not-allowed}.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field-grid>div{min-width:0}#map{height:320px;border-radius:14px;border:1px solid var(--line);margin-top:12px;z-index:0;background:var(--panel)}.map-point{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px;margin:7px 0}.map-point button{width:100%;display:flex;justify-content:space-between;gap:10px;background:none;border:0;text-align:left;color:var(--text);padding:2px;cursor:pointer}.map-point button strong{text-align:right}.map-point.selected{border-color:var(--low);background:var(--panel2)}.map-point small{display:block;color:var(--muted);margin-top:3px}.legend-item{white-space:nowrap}.src a{color:var(--low)}.history-lead{margin:18px 0 12px;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--panel)}.history-lead .lead-value{font:700 30px/1.1 Georgia,serif;margin:6px 0;color:var(--text)}.history-lead p{font-size:12px;color:var(--muted);margin:6px 0 10px}.mini-btn{display:inline-block;border:1px solid var(--line);background:transparent;color:var(--text);border-radius:9px;padding:8px 10px;font:600 12px system-ui;cursor:pointer}.archive-selects{display:grid;grid-template-columns:minmax(0,1fr) 100px;gap:9px;margin-top:12px}.archive-selects label{min-width:0}.month-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:12px 0}.month-cell{padding:9px 8px;border:1px solid var(--line);border-radius:10px;background:var(--panel);min-width:0}.month-cell span{display:block;color:var(--muted);font-size:11px}.month-cell b{display:block;margin-top:3px;font-size:13px;overflow-wrap:anywhere}.bar-chart{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:3px;align-items:end;margin-top:14px;height:130px;padding:10px 5px 4px;border:1px solid var(--line);border-radius:12px;background:var(--panel)}.bar-col{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;min-width:0;height:100%;gap:3px}.bar-col .bar-value{font-size:8px;color:var(--muted);white-space:nowrap}.bar-col .bar-track{height:82px;width:100%;display:flex;align-items:flex-end;justify-content:center}.bar-col i{display:block;width:min(100%,13px);min-height:2px;border-radius:3px 3px 0 0;background:var(--low)}.bar-col small{font-size:8px;color:var(--muted)}.source-box{margin-top:14px;padding:12px;border:1px dashed var(--line);border-radius:12px}.source-box a{color:var(--low)}.map-legend-dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#7765d4;margin-right:5px}.historical-summary{font-size:12px;color:var(--muted);margin-top:8px}.lnk{background:none;border:0;color:var(--low);font:inherit;text-decoration:underline;cursor:pointer;padding:2px;margin-left:7px}.split{display:flex;gap:8px}.split>*{min-width:0;flex:1}.small-btn{background:none;border:1px solid var(--line);border-radius:8px;color:var(--text);padding:6px 9px;cursor:pointer}.form-error{min-height:0;color:var(--high);font-size:13px;margin:0 0 8px}.form-error:empty{display:none}.metric{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}.metric>div{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px}.metric b{display:block;font-size:22px}.metric span{color:var(--muted);font-size:12px}.foot{margin-top:25px;color:var(--muted);font-size:11px}.freshness-box{margin:14px 0;padding:13px;border:1px solid var(--mod);border-radius:13px;background:color-mix(in srgb,var(--mod) 7%,var(--panel))}.freshness-box h3{font:700 17px/1.25 Georgia,serif;margin:0 0 7px}.freshness-box p{font-size:12px;color:var(--muted);margin-top:7px}.freshness-box .fresh-status{font-weight:800;color:var(--text)}.freshness-box a{color:var(--low)}.fresh-grid{display:grid;grid-template-columns:1fr;gap:8px;margin-top:10px}.fresh-item{padding:9px 10px;border:1px solid var(--line);border-radius:9px;background:var(--panel)}.fresh-item b{display:block;font-size:12px}.fresh-item span{display:block;color:var(--muted);font-size:12px;margin-top:2px}.freshness-box.compact{padding:10px 12px;margin:12px 0}.freshness-box.compact h3{font-size:15px}.freshness-box.compact p{margin-top:4px}.fresh-badge{display:inline-block;border:1px solid var(--mod);border-radius:20px;padding:2px 7px;font-size:10px;font-weight:800;margin-left:5px;color:var(--text)}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="eyebrow">Coastal water observatory · Prototype</div>
+  <h1>SaltVeil</h1>
+  <p>Historical river EC + weather context · Satkhira, Bangladesh · Data checked 9 Oct 2026</p>
+  <div class="status" id="src" role="status" aria-live="polite"><span class="dot" style="background:var(--mod)"></span><span>Loading weather data…</span></div>
+</header>
+<main>
+  <section id="v-today" class="section" aria-labelledby="today-title"><p class="note">Loading weather data…</p></section>
+  <section id="v-map" class="section hide" aria-labelledby="map-title"></section>
+  <section id="v-river" class="section hide" aria-labelledby="river-title"></section>
+  <section id="v-fore" class="section hide" aria-labelledby="fore-title"></section>
+  <section id="v-adv" class="section hide" aria-labelledby="adv-title"></section>
+  <section id="v-meas" class="section hide" aria-labelledby="meas-title"></section>
+</main>
+<footer class="foot">SaltVeil is a research prototype. It displays cited historical EC records and weather context. No September 2026 EC value is verified in this build. The experimental weather index is unvalidated and does not measure or reliably predict salinity, certify drinking-water safety, or replace official warnings or laboratory tests.</footer>
+</div>
+<nav aria-label="Main navigation"><div class="nav-inner" role="tablist" aria-label="SaltVeil sections">
+  <button role="tab" aria-selected="true" aria-controls="v-today" data-t="today">Today</button>
+  <button role="tab" aria-selected="false" aria-controls="v-map" data-t="map">Map</button>
+  <button role="tab" aria-selected="false" aria-controls="v-river" data-t="river">River EC</button>
+  <button role="tab" aria-selected="false" aria-controls="v-fore" data-t="fore">Forecast</button>
+  <button role="tab" aria-selected="false" aria-controls="v-adv" data-t="adv">Advice</button>
+  <button role="tab" aria-selected="false" aria-controls="v-meas" data-t="data">Data</button>
+</div></nav>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script>
+'use strict';
+/* --------------------- Configuration and sample-only preview --------------------- */
+const CFG={days:10,rainRef:40,heatBase:28,heatRange:6,wDry:45,wHeat:20,wFc:35};
+const PT=[
+ ['Satkhira Sadar',22.72,89.07],['Shyamnagar',22.33,89.10],['Kaliganj',22.45,89.05],
+ ['Assasuni',22.55,89.17],['Debhata',22.57,88.96],['Kalaroa',22.87,89.03],['Tala',22.75,89.25]
+];
+
+const SRDI_REPORT_URL="https://objectstorage.ap-dcc-gazipur-1.oraclecloud15.com/n/axvjbnqprylg/b/V2Ministry/o/office-srdi-satkhira/2024/12/368452989878461f803f42d7d223de0b.pdf";
+const BWDB_STATION_LIST_URL="https://www.hydrology.bwdb.gov.bd/includes/salinity_data_available_print.php?dist=&river=";
+const GROUNDWATER_STUDY_URL="https://doi.org/10.1016/j.heliyon.2024.e27857";
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const RIVER_STATIONS=[{"id":"kapotaksha-patkelghata","name":"Kapotaksha River — Patkelghata, Tala","river":"Kapotaksha","locality":"Patkelghata, Tala","lat":22.75,"lng":89.25,"coordType":"Approximate locality point (not the exact sampling point)","years":{"2021":[0.55,0.7,1.8,16.0,25.6,11.2,0.9,0.5,0.3,0.5,0.6,0.3],"2022":[0.6,0.8,1.1,14.3,18.1,21.0,17.1,11.2,1.5,3.8,2.7,3.1],"2023":[3.3,8.1,13.7,22.1,27.7,29.4,8.2,1.3,0.98,1.34,4.14,4.3],"2024":[2.15,2.1,6.6,19.34,21.46,24.12,null,null,null,null,null,null]}},{"id":"betna-benarpota","name":"Betna River — Benarpota, Satkhira Sadar","river":"Betna","locality":"Benarpota, Satkhira Sadar","lat":22.7529,"lng":89.1012,"coordType":"BWDB station coordinates for Benarpota; verify exact SRDI sampling point before precision analysis","years":{"2021":[2.8,0.9,1.6,2.3,7.5,9.5,1.4,0.7,0.3,0.3,0.3,0.4],"2022":[3.2,0.5,0.9,1.0,null,null,null,null,0.8,4.1,5.4,5.4],"2023":[4.4,5.3,5.5,7.5,4.35,4.13,4.1,2.81,3.0,4.19,3.81,3.95],"2024":[2.12,1.9,3.1,3.25,3.39,10.76,null,null,null,null,null,null]}},{"id":"betna-kalaroa","name":"Betna River — Kalaroa Bazaar","river":"Betna","locality":"Kalaroa Bazaar","lat":22.888,"lng":89.0412,"coordType":"BWDB Kalaroa station coordinates; verify exact SRDI sampling point before precision analysis","years":{"2021":[null,null,null,null,null,null,null,null,null,null,null,0.35],"2022":[0.62,0.92,0.98,null,null,null,2.4,2.1,0.8,1.1,1.0,1.2],"2023":[2.8,2.9,3.2,5.6,2.98,2.69,2.68,1.3,0.95,1.08,1.22,1.54],"2024":[1.12,0.5,1.47,1.69,1.78,4.86,null,null,null,null,null,null]}},{"id":"morichap-ashashuni","name":"Morichap River — Ashashuni","river":"Morichap","locality":"Ashashuni","lat":22.55,"lng":89.17,"coordType":"Approximate upazila/locality point (not the exact sampling point)","years":{"2021":[4.0,12.1,18.2,30.4,23.5,10.2,7.7,5.2,3.1,1.8,3.2,2.6],"2022":[3.3,5.1,16.5,22.5,29.0,31.1,18.2,13.8,8.1,8.3,10.4,11.5],"2023":[13.9,17.3,21.9,28.7,29.6,31.7,13.5,6.1,6.0,5.35,7.23,9.82],"2024":[5.66,8.0,17.85,29.5,32.12,29.5,null,null,null,null,null,null]}},{"id":"sapmarakhal-debhata","name":"Sapmarakhal — Parulia, Debhata","river":"Sapmarakhal","locality":"Parulia, Debhata","lat":22.57,"lng":88.96,"coordType":"Approximate upazila/locality point (not the exact sampling point)","years":{"2021":[null,null,null,null,null,null,null,null,null,null,null,2.6],"2022":[3.4,2.1,6.4,13.4,19.2,19.7,16.3,11.3,6.3,7.1,6.7,8.3],"2023":[12.0,13.1,17.8,22.5,24.8,27.3,15.84,8.17,6.65,5.88,5.92,6.61],"2024":[5.48,7.3,12.81,21.76,25.42,23.1,null,null,null,null,null,null]}},{"id":"kakshiali-kaliganj","name":"Kakshiali River — Kaliganj HQ","river":"Kakshiali","locality":"Kaliganj headquarters","lat":22.45,"lng":89.05,"coordType":"Approximate upazila/locality point (not the exact sampling point)","years":{"2021":[3.4,8.6,14.2,25.5,34.1,16.2,8.5,6.0,2.8,1.2,1.7,1.8],"2022":[2.8,5.8,11.3,19.8,25.2,26.7,24.6,18.6,7.6,7.7,7.8,10.5],"2023":[12.2,15.6,20.5,27.9,28.4,30.6,20.21,9.57,7.2,6.3,6.8,8.13],"2024":[9.5,10.8,16.12,27.88,31.1,27.56,null,null,null,null,null,null]}},{"id":"kholpetua-nawabeki","name":"Kholpetua River — Nawabeki, Shyamnagar","river":"Kholpetua","locality":"Nawabeki, Shyamnagar","lat":22.3,"lng":89.08,"coordType":"Approximate locality point (not the exact sampling point)","years":{"2021":[null,null,null,null,null,null,null,null,null,null,null,10.1],"2022":[11.2,19.8,25.2,36.2,41.3,42.6,32.2,25.2,18.1,18.2,17.8,20.7],"2023":[21.2,26.4,36.7,43.1,44.1,45.17,28.48,21.02,16.54,15.74,16.89,18.69],"2024":[18.9,19.1,28.5,40.22,42.5,36.8,null,null,null,null,null,null]}}];
+let RIVER_SEL='kholpetua-nawabeki',RIVER_YEAR=2024;
+const API='https://api.open-meteo.com/v1/forecast?latitude=22.72&longitude=89.07&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m&daily=precipitation_sum,temperature_2m_max&past_days=30&forecast_days=7&timezone=Asia%2FDhaka';
+const PAPI='https://api.open-meteo.com/v1/forecast?latitude='+PT.map(p=>p[1]).join(',')+'&longitude='+PT.map(p=>p[2]).join(',')+'&current=temperature_2m&daily=precipitation_sum,temperature_2m_max&past_days=30&forecast_days=7&timezone=Asia%2FDhaka';
+const LOW='#2ab5a8',MOD='#e9b44c',HIGH='#e4572e',NONE='#8a9aa0';
+const LV=[
+ {n:'Low',c:'var(--low)',s:'The experimental index is relatively low. This is not proof that water is safe.'},
+ {n:'Moderate',c:'var(--mod)',s:'The experimental index is moderate. Check field conditions and test water.'},
+ {n:'High',c:'var(--high)',s:'The experimental index is high. Test drinking-water sources before use.'}
+];
+const ACT=['Keep monitoring. Test water that tastes salty before use.','Consider storing rainwater and test drinking-water sources.','Test drinking-water sources before use; use a verified alternative if available.'];
+const ADV=[
+ [['Households','Weather alone cannot confirm a problem. Test any water that tastes salty before use.'],['Farmers','Check irrigation water with a meter before use, as usual.'],['Shrimp farms','Continue routine pond and intake salinity checks.']],
+ [['Households','Consider storing rainwater for drinking and cooking. Boiling does not remove dissolved salt.'],['Farmers','Test irrigation water before use and compare sources using measured values.'],['Shrimp farms','Measure salinity before water exchange.']],
+ [['Households','Test drinking-water sources before use. Prefer stored rainwater or a source with a recent test.'],['Farmers','Test canal water before irrigating; excessive salt can harm crops.'],['Shrimp farms','Test pond and intake salinity before water exchange.']]
+];
+const METHODS=['Handheld EC/TDS meter','Refractometer','Laboratory test','Test strip','Other'];
+const SOURCES=['My own field test','Government agency (BWDB, SRDI)','Published research','Other'];
+const sum=a=>a.reduce((x,y)=>x+y,0),avg=a=>a.length?sum(a)/a.length:NaN;
+const clamp=x=>Math.max(0,Math.min(1,x));
+const ok=v=>typeof v==='number'&&Number.isFinite(v);
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const f1=n=>Number(n).toFixed(1);
+function todayStr(){
+ const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Dhaka',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
+ const p=Object.fromEntries(parts.map(x=>[x.type,x.value]));return `${p.year}-${p.month}-${p.day}`;
+}
+function dl(s){if(!s)return 'Unknown date';const d=new Date(s+'T12:00:00Z');if(Number.isNaN(d.getTime()))return 'Unknown date';return new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Dhaka',weekday:'short',day:'numeric',month:'short',year:'numeric'}).format(d)}
+function dt(ms){if(!Number.isFinite(ms))return 'unknown time';return new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Dhaka',day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}).format(new Date(ms))+' Bangladesh time'}
+function cget(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}}
+function cset(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}}
+const SNAP={current:{time:'2026-10-08T15:45',temperature_2m:28.5,relative_humidity_2m:78,wind_speed_10m:7.8},daily:{
+ time:Array.from({length:37},(_,i)=>new Date(Date.UTC(2026,8,8+i)).toISOString().slice(0,10)),
+ precipitation_sum:[5.3,3.5,4.5,4.1,9,10.4,.2,.2,.1,7.6,4.6,1.8,4.2,9,10.1,23.7,22.5,8.3,16.8,.9,.4,0,0,.9,.5,1.1,.4,1.7,3.6,.4,13.4,.6,1.3,.1,0,0,12],
+ temperature_2m_max:[31.8,32.5,32.1,31.6,31,31.5,32.9,33.7,33.5,32.8,33.3,32.8,29.3,33.5,30.5,28.5,30.1,30,31.5,32.7,32.4,32.3,32.3,32.5,32.4,32,31.8,31.6,31.6,32,30.1,28.8,30.1,30.5,31.2,31.8,29.7]
+}};
+let ST=null,X=null,PTS=null,MAPD=null,MAP=null,SEL=0,PRE=null;
+
+/* Reject misaligned dates and incomplete daily arrays instead of silently guessing. */
+function check(d){
+ const x=d&&d.daily;if(!x||!Array.isArray(x.time)||!Array.isArray(x.precipitation_sum)||!Array.isArray(x.temperature_2m_max))return{ok:false,why:'The weather response is incomplete.'};
+ const n=x.time.length;if(n<18||x.precipitation_sum.length!==n||x.temperature_2m_max.length!==n)return{ok:false,why:'The weather date and value lists do not line up.'};
+ if(x.time.some((v,i)=>typeof v!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(v)||(i&&v<=x.time[i-1])))return{ok:false,why:'The weather dates are missing, invalid, or out of order.'};
+ return{ok:true};
+}
+/* ti is the exact date being assessed. Missing daily values make the index unavailable; no imputation. */
+function calcAt(d,ti){
+ const ck=check(d);if(!ck.ok)return{err:ck.why};
+ const r=d.daily.precipitation_sum,t=d.daily.temperature_2m_max;
+ if(!Number.isInteger(ti)||ti<CFG.days||ti+7>r.length)return{err:'There are not enough past and forecast days around this date.'};
+ const pastR=r.slice(ti-10,ti),pastT=t.slice(ti-7,ti),futureR=r.slice(ti,ti+7);
+ if(pastR.length!==10||pastT.length!==7||futureR.length!==7||![...pastR,...pastT,...futureR].every(ok))return{err:'One or more required daily weather values are missing. SaltVeil will not invent a score.'};
+ const rain10=sum(pastR),temp7=avg(pastT),fc7=sum(futureR);
+ const a=Math.round(clamp((CFG.rainRef-rain10)/CFG.rainRef)*CFG.wDry);
+ const b=Math.round(clamp((temp7-CFG.heatBase)/CFG.heatRange)*CFG.wHeat);
+ const c=Math.round(clamp((CFG.rainRef-fc7)/CFG.rainRef)*CFG.wFc),score=a+b+c;
+ return{rain10,temp7,fc7,a,b,c,score,lvl:score<35?0:score<65?1:2,ti,date:d.daily.time[ti],missing:0};
+}
+function calc(d){
+ const ck=check(d);if(!ck.ok)return{err:ck.why};
+ const ti=d.daily.time.indexOf(todayStr());
+ if(ti<0)return{err:`Today's date (${todayStr()} in Bangladesh) is not in this weather response. No current-day score is shown.`};
+ return calcAt(d,ti);
+}
+/* In offline demo mode, compute only the dated snapshot value and keep its demo label visible. */
+function calcDisplay(d){
+ if(ST&&ST.kind==='demo'){const date=d&&d.current&&typeof d.current.time==='string'?d.current.time.slice(0,10):'';const ti=d&&d.daily&&Array.isArray(d.daily.time)?d.daily.time.indexOf(date):-1;if(ti>=0)return calcAt(d,ti);}
+ return calc(d);
+}
+async function getJSON(url){const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),12000);try{const r=await fetch(url,{signal:ctrl.signal,cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status);return await r.json()}finally{clearTimeout(timer)}}
+async function load(){
+ try{const d=await getJSON(API),ck=check(d);if(!ck.ok)throw new Error(ck.why);const o={d,at:Date.now()};cset('sv3',o);return{...o,kind:'live'}}
+ catch(e){const c=cget('sv3');if(c&&c.d&&check(c.d).ok&&Number.isFinite(c.at))return{...c,kind:'cached',failure:String(e.message||e)};
+  return{d:SNAP,at:null,kind:'demo',failure:String(e.message||e)};}
+}
+async function loadPts(){
+ try{const raw=await getJSON(PAPI),arr=Array.isArray(raw)?raw:[raw];if(arr.length!==PT.length||!arr.every(d=>check(d).ok))throw new Error('Incomplete upazila weather response');const o={a:arr,at:Date.now()};cset('svp3',o);return{...o,kind:'live'}}
+ catch(e){const c=cget('svp3');if(c&&Array.isArray(c.a)&&c.a.length===PT.length&&c.a.every(d=>check(d).ok)&&Number.isFinite(c.at))return{...c,kind:'cached',failure:String(e.message||e)};return{a:null,at:null,kind:'unavailable',failure:String(e.message||e)}}
+}
+function status(){
+ const el=$('src');let label='',color='var(--muted)',retry='';
+ if(!ST){label='Loading weather data…';color='var(--mod)'}
+ else if(ST.kind==='live'){label='Open-Meteo data fetched '+dt(ST.at)+'.';color='var(--low)'}
+ else if(ST.kind==='cached'){const age=Date.now()-ST.at;label='Saved weather fetched '+dt(ST.at)+'. '+(age>6*3600000?'Older than 6 hours; not live.':'Network unavailable; using saved data.');color='var(--mod)';retry='<button type="button" id="rt">Retry</button>'}
+ else{label='DEMO DATA ONLY · snapshot dated 8 Oct 2026. This is not current weather.';color='var(--high)';retry='<button type="button" id="rt">Retry</button>'}
+ el.innerHTML=`<span class="dot" style="background:${color}"></span><span>${esc(label)} ${retry}</span>`;
+}
+function tank(score,color){const y=174-150*score/100;return `<svg viewBox="0 0 126 180" aria-hidden="true"><g class="wave" style="color:${color}"><path d="M0 ${y} q20 -9 40 0 t40 0 t40 0 t40 0 t40 0 V185 H0Z" fill="currentColor" opacity=".85"/></g></svg>`}
+function demoBanner(){return ST&&ST.kind==='demo'?'<p class="note danger"><span class="notice-title">Demo mode — not a real assessment</span>Open-Meteo could not be reached and no saved live data was available. Any displayed index below uses a fixed example dataset dated 8 Oct 2026; do not use it for decisions.</p>':''}
+function freshnessNotice(compact=false){
+ const common=`<b>Data status checked 9 Oct 2026</b><span class="fresh-badge">Not live EC</span>`;
+ if(compact)return `<div class="freshness-box compact"><h3>${common}</h3><p>Latest EC values displayed in this app: Jan–Jun 2024 (SRDI report). BWDB’s station register lists data availability through 25 Jun 2025 at three Satkhira stations, but that list is not the actual EC readings. No verifiable September 2026 EC result has been added.</p><button type="button" class="mini-btn" id="explore-ec-fresh">Open data freshness details →</button></div>`;
+ return `<div class="freshness-box"><h3>${common}</h3><p class="fresh-status">September 2026 EC measurement: not verified — intentionally not estimated or fabricated.</p><div class="fresh-grid"><div class="fresh-item"><b>EC values in the interactive archive</b><span>SRDI monthly river-water series for seven localities; the 2024 entries shown here end in June 2024.</span></div><div class="fresh-item"><b>Newer official data-availability evidence</b><span>The BWDB register (print date 19 Feb 2026) lists records through 25 Jun 2025 at Jogikhali/Kobadak, Kalaroa/Betna–Kholpetua, and Benarpota/Betna–Kholpetua. This does not reveal those dates’ EC values.</span></div><div class="fresh-item"><b>What is still needed</b><span>Obtain the actual dated EC readings from BWDB/SRDI, match each reading to its exact station and sample date, then compare with the weather index. Until that paired dataset is checked on unseen dates, the index remains unvalidated.</span></div></div><p>Official sources: <a href="${BWDB_STATION_LIST_URL}" target="_blank" rel="noopener noreferrer">BWDB station register</a> · <a href="${SRDI_REPORT_URL}" target="_blank" rel="noopener noreferrer">SRDI Satkhira report (PDF)</a>. Availability metadata is not a substitute for the raw measurement series.</p></div>`;
+}
+function historicalLead(){return `<div class="history-lead"><div class="eyebrow">Real historical river EC · public report</div><div class="lead-value">42.50 dS/m</div><p>May 2024 · Kholpetua River, Nawabeki, Shyamnagar. Highest value among the seven river stations’ values currently displayed in this app for Jan–Jun 2024 from the SRDI Satkhira annual-activities report.</p><p><b>Historical data, not a live 2026 reading.</b> It was published by SRDI; it was not measured by this app’s developer.</p><button type="button" class="mini-btn" id="explore-ec">Explore all measured EC records →</button></div>`}
+function unavailable(title,msg){return `<h2 class="section-title">${esc(title)}</h2><p class="note warn">${esc(msg)}</p>`}
+function renderToday(){
+ if(!X||!X.d){$('v-today').innerHTML=unavailable('Today','No weather dataset is available.');return}
+ const d=X.d,m=calcDisplay(d),c=d.current||{};let html=demoBanner()+freshnessNotice(true)+historicalLead();
+ if(m.err){$('v-today').innerHTML=html+unavailable('Risk index unavailable',m.err)+'<p class="note">SaltVeil only computes the experimental index when the exact Bangladesh date and all required daily values are present.</p>';return}
+ const L2=LV[m.lvl],isDemo=ST.kind==='demo';
+ html+=`<div class="hero"><div class="tank">${tank(m.score,L2.c)}</div><div class="read"><div class="eyebrow">${isDemo?'Demo-only score':'Experimental index'}</div><h2>${m.score}<small> / 100</small></h2><div class="lvl" style="color:${L2.c}">${isDemo?'Demo '+L2.n:L2.n+' index'}</div><p>${esc(L2.s)}</p></div></div>
+ <span class="pill">Weather-based · unvalidated · not measured salinity</span>
+ <h3>What influenced this score?</h3><div class="rows">
+ <div class="row"><span>Rainfall, previous 10 days</span><b>${f1(m.rain10)} mm · +${m.a}</b></div>
+ <div class="row"><span>Rain forecast, next 7 days</span><b>${f1(m.fc7)} mm · +${m.c}</b></div>
+ <div class="row"><span>Average high, previous 7 days</span><b>${f1(m.temp7)} °C · +${m.b}</b></div>
+ <div class="row"><span>Tides and river levels</span><b>Not included</b></div>
+ <div class="row"><span>Weather at Satkhira Sadar</span><b>${ok(c.temperature_2m)?f1(c.temperature_2m)+' °C':'n/a'}${ok(c.relative_humidity_2m)?' · '+Math.round(c.relative_humidity_2m)+'% RH':''}</b></div>
+ <div class="row"><span>Scientific validation</span><b>Not performed</b></div></div>
+ <p class="note"><span class="notice-title">Important safety limitation</span>This index is a prototype based on rainfall and temperature assumptions. It is not a prediction of measured salinity. Use an appropriate field meter or laboratory test to check water quality; a salinity reading alone also does not establish that water is safe to drink.</p>`;
+ $('v-today').innerHTML=html;
+}
+function chart(d,ti){
+ const r=d.daily.precipitation_sum,H=106,W= Math.max(330,r.length*10),bar=8;let s=`<svg viewBox="0 0 ${W} ${H+25}" width="100%" role="img" aria-label="Daily rainfall totals from weather data">`;
+ r.forEach((v,i)=>{if(!ok(v))return;const h=Math.max(1.5,Math.min(v,40)/40*H),fc=i>=ti;s+=`<rect x="${i*10+1}" y="${H-h}" width="${bar}" height="${h}" rx="2" fill="${fc?'var(--mod)':'var(--low)'}" opacity="${i===ti?1:fc?.75:.9}"/>`});
+ s+=`<line x1="0" x2="${W}" y1="${H+.5}" y2="${H+.5}" stroke="var(--line)"/><text x="2" y="${H+17}" font-size="10" fill="var(--muted)">Past days</text><text x="${Math.min(W-65,ti*10+5)}" y="${H+17}" font-size="10" fill="var(--muted)">${ST&&ST.kind==='demo'?'Snapshot onward':'Today onward'}</text></svg>`;return s;
+}
+function renderFore(){
+ const d=X&&X.d,m=d&&calcDisplay(d);if(!d||!m||m.err){$('v-fore').innerHTML=unavailable('Forecast',m&&m.err||'Weather data is not available.');return}
+ const days=d.daily.time.map((t,i)=>({t,r:d.daily.precipitation_sum[i],h:d.daily.temperature_2m_max[i]})).slice(m.ti,m.ti+7);
+ if(days.length!==7){$('v-fore').innerHTML=unavailable('Forecast','Seven forecast days are not available for today.');return}
+ $('v-fore').innerHTML=demoBanner()+`<h2 class="section-title" id="fore-title">Rainfall outlook</h2><p class="sub">Daily totals from Open-Meteo or the clearly labelled demo/saved dataset.</p><div class="chart">${chart(d,m.ti)}</div><div class="key"><span class="legend-item"><i style="background:var(--low)"></i>Past data</span><span class="legend-item"><i style="background:var(--mod)"></i>Today and forecast</span></div><h3>Next 7 days</h3><div class="rows">${days.map((x,i)=>`<div class="row"><span>${i===0?(ST.kind==='demo'?'Snapshot day':'Today'):esc(dl(x.t))}</span><b>${ok(x.r)?f1(x.r)+' mm':'No data'} rain<br>${ok(x.h)?'High '+f1(x.h)+' °C':'High unavailable'}</b></div>`).join('')}</div><p class="note">Forecast rainfall is not a direct measurement of drinking-water salinity. Demo values are illustrative only.</p>`;
+}
+function renderAdv(){
+ const m=X&&X.d&&calcDisplay(X.d);if(!m||m.err){$('v-adv').innerHTML=unavailable('Advice','No current weather-based index is available. Use routine water testing and official public-health advice.');return}
+ const lvl=m.lvl,L2=LV[lvl];$('v-adv').innerHTML=demoBanner()+`<h2 class="section-title" id="adv-title">Practical guidance</h2><p class="sub">Suggestions only; a weather index cannot determine whether water is safe.</p><h3>For this ${L2.n.toLowerCase()} experimental index</h3>`+ADV[lvl].map(a=>`<div class="adv now" style="--c:${L2.c}"><b>${esc(a[0])}</b>${esc(a[1])}</div>`).join('')+`<div class="adv now" style="--c:${L2.c}"><b>Community data</b>Record field measurements with their date, method, unit and location so the records can later be reviewed.</div><p class="note"><span class="notice-title">Do not rely on taste alone</span>Do not use this score to decide whether water is safe to drink. Use official water-quality guidance and suitable testing. Boiling does not remove dissolved salt.</p>`;
+}
+/* --------------------- Imported historical river-water EC archive --------------------- */
+function renderRiver(){
+ const st=RIVER_STATIONS.find(x=>x.id===RIVER_SEL)||RIVER_STATIONS[0],year=String(RIVER_YEAR),vals=st.years[year]||Array(12).fill(null);
+ const available=vals.filter(v=>Number.isFinite(v));
+ const max=Math.max(1,...available);
+ const chart=`<div class="bar-chart" role="img" aria-label="Monthly historical electrical conductivity in dS per metre for ${esc(st.name)}, ${year}; unreported months are blank">${vals.map((v,i)=>`<div class="bar-col"><span class="bar-value">${v==null?'—':Number(v).toFixed(1)}</span><div class="bar-track">${v==null?'':`<i style="height:${Math.max(3,Number(v)/max*100)}%"></i>`}</div><small>${MONTHS[i]}</small></div>`).join('')}</div>`;
+ const cards=vals.map((v,i)=>`<div class="month-cell"><span>${MONTHS[i]} ${year}</span><b>${v==null?'No record':Number(v).toFixed(2)+' dS/m'}</b></div>`).join('');
+ const selOpts=RIVER_STATIONS.map(q=>`<option value="${q.id}"${q.id===st.id?' selected':''}>${esc(q.name)}</option>`).join('');
+ $('v-river').innerHTML=`<h2 class="section-title" id="river-title">Historical river-water EC archive</h2>
+ ${freshnessNotice(false)}
+ <p class="sub">Historical electrical-conductivity readings transcribed from the Soil Resource Development Institute (SRDI), Regional Office Satkhira, report “Activities of 2023–2024”, section 10.B. These are public-source observations—not live readings and not collected by this app’s developer.</p>
+ <div class="metric"><div><span>River monitoring sites</span><b>7</b></div><div><span>Years represented</span><b>2021–2024</b></div><div><span>Reported EC values</span><b>254</b></div><div><span>2024 data reported</span><b>Jan–Jun</b></div></div>
+ <div class="archive-selects"><label for="rstation">Monitoring location<select id="rstation">${selOpts}</select></label><label for="ryear">Year<select id="ryear">${[2024,2023,2022,2021].map(y=>`<option value="${y}"${y===RIVER_YEAR?' selected':''}>${y}</option>`).join('')}</select></label></div>
+ <h3>${esc(st.name)}</h3><p class="sub">Unit as shown in the SRDI report: EC in dS/m. ${esc(st.coordType)}.</p>
+ ${chart}<div class="month-grid">${cards}</div>
+ <p class="note">Blank/“No record” means the source report did not provide a value for that month; it is not zero. The 2024 series in this report ends in June. Do not extrapolate missing months.</p>
+ <div class="source-box"><b>What these data do—and do not—say</b><p class="sub" style="margin-top:6px">These values show historical river-water EC at named sites. They are not present-day measurements, not tubewell readings, and not a calibrated SaltVeil forecast. EC is a conductivity indicator and must not be treated as a direct ppt conversion or as proof that water is safe to drink.</p><p class="sub src" style="margin-top:8px">Primary source: <a href="${SRDI_REPORT_URL}" target="_blank" rel="noopener noreferrer">SRDI Satkhira annual-activities report (PDF), section 10.B</a>. Cross-check station availability: <a href="${BWDB_STATION_LIST_URL}" target="_blank" rel="noopener noreferrer">BWDB salinity station register</a>.</p><button type="button" class="btn ghost" id="river-csv">Download historical EC archive (CSV)</button></div>
+ <h3>Additional groundwater evidence</h3><p class="sub">A published 2024 study of tubewell groundwater in six unions of Kaliganj reported EC values of 0.95–8.56 mS/cm. This is a study-level range, not a live reading or a geolocated point dataset in SaltVeil.</p><p class="sub src"><a href="${GROUNDWATER_STUDY_URL}" target="_blank" rel="noopener noreferrer">Read the 2024 Kaliganj groundwater study (Heliyon)</a>.</p>
+ <h3>Interpretation for SaltVeil</h3><p class="sub">The archive makes the app’s salinity focus concrete: river-water EC changes by location and month. The weather index remains separate and unvalidated. A future prediction model needs paired weather, river/tide/flow and measured EC data, plus independent validation.</p>`;
+}
+function exportRiverCsv(){
+ const q=x=>x==null?'':String(x).includes(',')||String(x).includes('"')||String(x).includes('\n')?'"'+String(x).replace(/"/g,'""')+'"':String(x);
+ const rows=[['source','station','river','locality','year','month','EC_dS_m','record_type','coordinate_note','source_url'].map(q).join(',')];
+ RIVER_STATIONS.forEach(st=>Object.keys(st.years).sort().forEach(y=>st.years[y].forEach((v,i)=>rows.push(["SRDI Satkhira Activities 2023-2024 section 10.B",st.name,st.river,st.locality,y,MONTHS[i],v,'historical river-water EC',st.coordType,SRDI_REPORT_URL].map(q).join(',')))));
+ const blob=new Blob(['\uFEFF'+rows.join('\r\n')],{type:'text/csv;charset=utf-8;'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='saltveil_satkhira_historical_river_ec_2021_2024.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);
+}
+
+/* --------------------- Field measurements (saved only on this device) --------------------- */
+function getM(){const a=cget('svm3');return Array.isArray(a)?a:[]}
+function setM(a){return cset('svm3',a)}
+function byNew(a,b){return String(b.date).localeCompare(String(a.date))||(b.ts||0)-(a.ts||0)}
+function lastM(name){return getM().filter(o=>o.upazila===name).sort(byNew)[0]||null}
+function ctxFor(name,date){
+ const p=MAPD&&MAPD.find(q=>q.name===name),d=p&&p.d;if(!d)return null;const ti=d.daily.time.indexOf(date);if(ti<0)return null;const m=calcAt(d,ti);return m.err?null:{rain10:+m.rain10.toFixed(1),fc7:+m.fc7.toFixed(1),temp7:+m.temp7.toFixed(1),score:m.score};
+}
+function renderMeas(){
+ const a=getM().sort(byNew),selected=PRE||(MAPD&&MAPD[SEL]?MAPD[SEL].name:PT[0][0]),opts=arr=>arr.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('');
+ $('v-meas').innerHTML=demoBanner()+`<h2 class="section-title" id="meas-title">Field data</h2><p class="sub">Add a real measurement to build a local record. Do not enter a guessed or weather-derived value as a measurement.</p>
+ <form id="measurement-form" novalidate>
+ <label for="mu">Upazila<select id="mu" name="upazila">${PT.map(q=>`<option value="${esc(q[0])}"${q[0]===selected?' selected':''}>${esc(q[0])}</option>`).join('')}</select></label>
+ <label for="md">Date measured<input id="md" name="date" type="date" value="${todayStr()}" max="${todayStr()}" required></label>
+ <label for="mv">Measured salinity<input id="mv" name="value" type="number" step="any" min="0" inputmode="decimal" placeholder="e.g. 12.6" required></label>
+ <label for="mn">Unit<select id="mn" name="unit"><option value="ppt">ppt</option><option value="dS/m">dS/m</option></select></label>
+ <label for="mm">Test method<select id="mm" name="method">${opts(METHODS)}</select></label>
+ <label for="ms2">Data source<select id="ms2" name="source">${opts(SOURCES)}</select></label>
+ <label>Exact location (optional; latitude and longitude)</label><div class="field-grid"><div><label for="ml">Latitude</label><input id="ml" name="lat" type="number" step="any" inputmode="decimal" placeholder="22.72"></div><div><label for="mo">Longitude</label><input id="mo" name="lon" type="number" step="any" inputmode="decimal" placeholder="89.07"></div></div>
+ <button class="btn ghost" id="gps" type="button">Use my location</button><p id="me" class="form-error" role="alert" aria-live="polite"></p><button class="btn" type="submit">Save measurement</button></form>
+ <h3>Saved records (${a.length})</h3><div class="rows" style="margin-top:0">${a.slice(0,50).map(x=>`<div class="row"><span>${esc(dl(x.date))}<br>${esc(x.upazila)} · ${esc(x.method)}<br><small>${esc(x.source)}</small></span><b>${esc(x.v)} ${esc(x.unit)}<br><button class="lnk" type="button" data-rm="${esc(x.id)}" aria-label="Remove measurement from ${esc(dl(x.date))}">Remove</button></b></div>`).join('')||'<div class="row"><span>No measurements saved yet.</span></div>'}</div>
+ ${a.length?'<button class="btn ghost" id="mx" type="button">Download CSV</button>':''}
+ <p class="note">Records are stored in this browser on this device. Clearing browser/site data may delete them. Units are kept exactly as entered and are not converted. Do not compare unlike units without a documented conversion method.</p>
+ <h3>Model status</h3><div class="metric"><div><span>Saved measurements</span><b>${a.length}</b></div><div><span>Upazilas recorded</span><b>${new Set(a.map(x=>x.upazila)).size}</b></div><div><span>Paired weather records</span><b>${a.filter(x=>x.ctx).length}</b></div><div><span>Validated model</span><b>No</b></div></div>
+ <div class="rows"><div class="row"><span>Calibration to measured salinity</span><b>Not performed</b></div><div class="row"><span>Independent validation</span><b>Not performed</b></div><div class="row"><span>MAE / RMSE / R²</span><b>Not reported</b></div></div>
+ <p class="note">The current index uses three uncalibrated assumptions: low rainfall in the previous 10 days (up to ${CFG.wDry} points), warmer recent days (up to ${CFG.wHeat}), and low forecast rainfall over 7 days (up to ${CFG.wFc}). Tides, river flow, groundwater depth, pumping, water-source type and measured salinity are not modelled. A reliable predictive model needs verified paired observations and separate testing data.</p>
+ <h3>Historical salinity archive</h3><p class="sub">Seven river stations have public-source monthly EC readings for 2021–2023 and partial 2024 readings in the new River EC tab. These are attributed to SRDI and are not personal measurements. <a href="https://objectstorage.ap-dcc-gazipur-1.oraclecloud15.com/n/axvjbnqprylg/b/V2Ministry/o/office-srdi-satkhira/2024/12/368452989878461f803f42d7d223de0b.pdf" target="_blank" rel="noopener noreferrer">Open the source PDF</a>.</p><h3>Data and map sources</h3><p class="sub src">Weather: <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo</a> forecast model data. Map tiles: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>. The markers show approximate upazila centre points, not official administrative boundaries.</p>`;
+}
+function saveM(e){
+ e.preventDefault();const E=t=>{$('me').textContent=t};E('');const v=Number($('mv').value),unit=$('mn').value,date=$('md').value;
+ if(!$('mv').value.trim()||!Number.isFinite(v)||v<0)return E('Enter a non-negative numeric measurement.');
+ if(v>(unit==='ppt'?45:80))return E('This value is outside the app’s entry limit. Check the measured value and unit.');
+ if(!date||date>todayStr())return E('Choose a measurement date that is not in the future.');
+ let lat=$('ml').value===''?null:Number($('ml').value),lon=$('mo').value===''?null:Number($('mo').value);
+ if((lat===null)!==(lon===null))return E('Enter both latitude and longitude, or leave both empty.');
+ if(lat!==null&&(!Number.isFinite(lat)||!Number.isFinite(lon)||lat<22||lat>23.2||lon<88.7||lon>89.5))return E('That location is outside the expected Satkhira area, or the coordinates are invalid.');
+ const name=$('mu').value,record={id:(globalThis.crypto&&crypto.randomUUID)?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2,7),ts:Date.now(),date,upazila:name,lat,lon,v,unit,method:$('mm').value,source:$('ms2').value,ctx:ctxFor(name,date)};
+ const records=getM();records.push(record);if(!setM(records))return E('The browser could not save this record. Check device storage settings.');PRE=name;renderMeas();if(MAPD)detail();
+}
+function csv(){
+ const q=x=>{x=x==null?'':String(x);return /[",\n\r]/.test(x)?'"'+x.replace(/"/g,'""')+'"':x};
+ const rows=getM().sort(byNew).map(o=>[o.id,o.date,o.upazila,o.lat,o.lon,o.v,o.unit,o.method,o.source,new Date(o.ts).toISOString(),o.ctx&&o.ctx.rain10,o.ctx&&o.ctx.fc7,o.ctx&&o.ctx.temp7,o.ctx&&o.ctx.score].map(q).join(','));
+ const body='id,date,upazila,latitude,longitude,value,unit,method,source,entered_at_utc,rain_past10_mm,rain_forecast7_mm,temp_average_past7_c,experimental_index\r\n'+rows.join('\r\n');
+ const blob=new Blob(['\uFEFF',body],{type:'text/csv;charset=utf-8;'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='saltveil-measurements.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);
+}
+/* --------------------- Map: data are point estimates, not salinity observations --------------------- */
+function buildMap(){
+ const arr=PTS&&PTS.a;MAPD=PT.map((q,i)=>{const d=arr&&arr[i]&&check(arr[i]).ok?arr[i]:null,m=d?calc(d):null;return{name:q[0],lat:q[1],lng:q[2],d,m:m&&!m.err?m:null,temp:d&&d.current?d.current.temperature_2m:null}});
+ const some=MAPD.some(p=>p.m),mapTitle=`<h2 class="section-title" id="map-title">Satkhira overview</h2>`;
+ $('v-map').innerHTML=demoBanner()+mapTitle+`<p class="sub">Weather circles show an experimental index only. Purple markers show historical river-EC monitoring localities; some positions are approximate, not exact sample coordinates.</p>
+ <div class="key"><span><i style="background:${LOW}"></i>Low index</span><span><i style="background:${MOD}"></i>Moderate</span><span><i style="background:${HIGH}"></i>High</span><span><i style="background:${NONE}"></i>No weather data</span><span><i class="map-legend-dot"></i>Historical river EC station</span></div>
+ ${typeof L!=='undefined'?'<div id="map" role="application" aria-label="Map showing approximate upazila-centre markers"></div>':'<p class="note warn">The mapping library did not load. Upazila records remain available below.</p>'}
+ <p id="tn" class="note hide">Map tiles could not load. Check your internet connection; the list below still works.</p><div id="pd"></div><h3>Upazilas</h3><div id="upazila-list">${MAPD.map((p,i)=>pointRow(p,i)).join('')}</div>
+ <p class="note">${some?(PTS.kind==='live'?'Upazila weather fetched '+esc(dt(PTS.at))+'. ':'Using saved upazila weather fetched '+esc(dt(PTS.at))+'. '):'Upazila weather could not be loaded; no index is shown for these points. '}Weather comes from a gridded model (around 10 km resolution), so nearby locations can share similar weather values. Locations are approximate centre points, not official boundary polygons. This is not measured salinity.</p>`;
+ bindPointRows();detail();renderMeas();if(!$('v-map').classList.contains('hide'))initMap();
+}
+function pointRow(p,i){const color=p.m?[LOW,MOD,HIGH][p.m.lvl]:NONE,label=p.m?LV[p.m.lvl].n+' · '+p.m.score+'/100':'No weather index';return `<div class="map-point${i===SEL?' selected':''}" data-point="${i}"><button type="button" aria-label="Select ${esc(p.name)}"><span><i class="dot" style="background:${color};margin-right:8px"></i>${esc(p.name)}</span><strong>${esc(label)}</strong></button><small>${p.m?'Experimental index only · not salinity':'No usable data for exact date'}</small></div>`}
+function bindPointRows(){document.querySelectorAll('[data-point]').forEach(el=>el.querySelector('button').onclick=()=>selectPoint(Number(el.dataset.point),true))}
+function selectPoint(i,pan){if(!MAPD||!MAPD[i])return;SEL=i;detail();bindPointRows();if(pan&&MAP)MAP.panTo([MAPD[i].lat,MAPD[i].lng])}
+function initMap(){
+ if(MAP||typeof L==='undefined'||!MAPD||!$('map'))return;
+ MAP=L.map('map',{scrollWheelZoom:false}).setView([22.62,89.09],9);
+ const tiles=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:14,attribution:'&copy; OpenStreetMap contributors'}).addTo(MAP);tiles.on('tileerror',()=>$('tn')&&$('tn').classList.remove('hide'));
+ MAPD.forEach((p,i)=>{const color=p.m?[LOW,MOD,HIGH][p.m.lvl]:NONE;const mark=L.circleMarker([p.lat,p.lng],{radius:i===SEL?10:8,color:'#06202b',weight:2,fillColor:color,fillOpacity:.9}).addTo(MAP);mark.bindTooltip(p.name,{direction:'top'});mark.on('click',()=>selectPoint(i,false));p.marker=mark});
+  RIVER_STATIONS.forEach(st=>{const v=st.years['2024'].filter(x=>Number.isFinite(x)).slice(-1)[0];const month=st.years['2024'].lastIndexOf(v);const marker=L.circleMarker([st.lat,st.lng],{radius:6,color:'#ffffff',weight:2,fillColor:'#7765d4',fillOpacity:1}).addTo(MAP);marker.bindTooltip('Historical EC · '+st.locality,{direction:'top'});marker.bindPopup(`<b>${esc(st.name)}</b><br>SRDI 2024 ${MONTHS[month]} EC: ${Number(v).toFixed(2)} dS/m<br><small>Historical river-water observation. ${esc(st.coordType)}.</small><br><a href="${SRDI_REPORT_URL}" target="_blank" rel="noopener noreferrer">Open SRDI source report</a>`)});
+  setTimeout(()=>MAP&&MAP.invalidateSize(),80);
+}
+function detail(){
+ if(!MAPD||!MAPD[SEL]||!$('pd'))return;const p=MAPD[SEL],lm=lastM(p.name),m=p.m,lv=m?LV[m.lvl]:null;
+ $('pd').innerHTML=`<h3 style="margin-top:18px">${esc(p.name)}</h3><div class="rows" style="margin-top:0"><div class="row"><span>Experimental weather index</span><b style="color:${lv?lv.c:'var(--muted)'}">${m?esc(lv.n)+' ('+m.score+'/100)':'Unavailable'}</b></div>${m?`<div class="row"><span>Rain forecast, next 7 days</span><b>${f1(m.fc7)} mm</b></div><div class="row"><span>Temperature now</span><b>${ok(p.temp)?f1(p.temp)+' °C':'n/a'}</b></div>`:''}<div class="row"><span>Last saved field measurement</span><b>${lm?esc(lm.v+' '+lm.unit+', '+dl(lm.date)):'None saved'}</b></div><div class="row"><span>Suggested next step</span><b>${esc(m?ACT[m.lvl]:'Use a suitable meter/lab test; no weather score available.')}</b></div></div><button class="btn ghost" id="addm" type="button">Add measurement for ${esc(p.name)}</button>`;
+ $('addm').onclick=()=>{PRE=p.name;showTab('data');$('mu').value=p.name;};
+ document.querySelectorAll('[data-point]').forEach((el,i)=>el.classList.toggle('selected',i===SEL));
+ if(MAPD)MAPD.forEach((q,i)=>{if(q.marker){q.marker.setStyle({radius:i===SEL?10:8,weight:i===SEL?3:2})}});
+}
+/* --------------------- Navigation and safe event handling --------------------- */
+const TABS={today:['today'],map:['map'],river:['river'],fore:['fore'],adv:['adv'],data:['meas']};
+function showTab(k){
+ document.querySelectorAll('nav [role="tab"]').forEach(b=>{const selected=b.dataset.t===k;b.setAttribute('aria-selected',String(selected));b.tabIndex=selected?0:-1});
+ Object.keys(TABS).forEach(group=>TABS[group].forEach(id=>$('v-'+id).classList.toggle('hide',group!==k)));
+ if(k==='map'){initMap();setTimeout(()=>MAP&&MAP.invalidateSize(),90)}
+ window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+}
+document.querySelectorAll('nav [role="tab"]').forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.t)));
+document.querySelector('nav .nav-inner').addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;const tabs=[...document.querySelectorAll('nav [role="tab"]')],cur=tabs.indexOf(document.activeElement);let i=cur;if(e.key==='Home')i=0;else if(e.key==='End')i=tabs.length-1;else i=(cur+(e.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;tabs[i].focus();showTab(tabs[i].dataset.t);e.preventDefault()});
+$('src').addEventListener('click',e=>{if(e.target.id==='rt'){e.target.disabled=true;e.target.textContent='Retrying…';initApp(true)}});
+$('v-meas').addEventListener('submit',e=>{if(e.target.id==='measurement-form')saveM(e)});
+$('v-today').addEventListener('click',e=>{if(e.target&&['explore-ec','explore-ec-fresh'].includes(e.target.id))showTab('river')});
+$('v-river').addEventListener('change',e=>{if(e.target&&e.target.id==='rstation')RIVER_SEL=e.target.value;if(e.target&&e.target.id==='ryear')RIVER_YEAR=Number(e.target.value);renderRiver()});
+$('v-river').addEventListener('click',e=>{if(e.target&&e.target.id==='river-csv')exportRiverCsv()});
+$('v-meas').addEventListener('click',e=>{const t=e.target;if(t.id==='mx')csv();else if(t.dataset&&t.dataset.rm){const rest=getM().filter(o=>o.id!==t.dataset.rm);if(setM(rest)){renderMeas();detail()}}else if(t.id==='gps'){
+ if(!navigator.geolocation){$('me').textContent='This browser does not support location sharing.';return}
+ $('me').textContent='Requesting location permission…';navigator.geolocation.getCurrentPosition(r=>{$('ml').value=r.coords.latitude.toFixed(5);$('mo').value=r.coords.longitude.toFixed(5);$('me').textContent='';},()=>{$('me').textContent='Could not get location. On many phones, this needs HTTPS and location permission.';},{enableHighAccuracy:true,timeout:12000,maximumAge:60000});
+ }});
+async function initApp(isRetry=false){
+ ST=null;status();if(isRetry)$('v-today').innerHTML='<p class="note">Retrying weather connection…</p>';
+ const x=await load();X=ST=x;status();renderToday();renderFore();renderAdv();
+ const p=await loadPts();PTS=p;buildMap();
+}
+renderMeas();
+renderRiver();
+// The form is re-rendered after saves; the parent form listener above handles every instance exactly once.
+initApp();
+</script>
+</body>
+</html>
